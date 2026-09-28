@@ -3,56 +3,24 @@ local playerCoords, playerPed, playerPed
 local isNear = false
 local nearestLocation
 
-Citizen.CreateThread(function()
-	Citizen.Wait(1000)
-	
-	while true do
-		sleep = 1000
+RegisterNetEvent('mbt:sendToBackrooms')
+AddEventHandler('mbt:sendToBackrooms', function()
+    local playerPed = PlayerPedId()
+	ExecuteCommand('me Zakopl')
 
-		playerPed = PlayerPedId()
-	
-		if IsEntityDead(playerPed) or not DoesEntityExist(playerPed) then
-			Citizen.Wait(1000) 
-			goto ignoring
-		end
-		
-		isFalling = false
-		veh = GetVehiclePedIsIn(playerPed, false)
+    SetPedToRagdoll(playerPed, 1500, 1500, 0, 0, 0, 0)
+    Citizen.Wait(500) 
 
-		playerCoords = GetEntityCoords(playerPed)
-		_, z = GetGroundZFor_3dCoord(playerCoords.x, playerCoords.y, 150.0, 0) 
+    
+    ClearPedTasksImmediately(playerPed)
+    local randomBackroom = MBT.Coords[math.random(1, #MBT.Coords)]
 
-        if playerCoords.z < MBT.FallingPoint then
-		
-			if IsPedSwimming(playerPed) or IsPedSwimmingUnderWater(playerPed) or (not IsPedFalling(playerPed) and veh == 0) then
-				goto ignoring
-			end
-
-			if IsPedFalling(playerPed) then
-				isFalling = true
-			end
-
-			if veh ~= 0 and IsEntityInAir(veh) then
-				isFalling = true
-			end
-
-			if isFalling then
-				sleep = 100
-				ClearPedTasksImmediately(playerPed)
-				local randomBackroom = MBT.Coords[math.random(1, #MBT.Coords)]
-
-				teleportPlayer({
-					playerPed = playerPed,
-					randomBackroom = randomBackroom
-				})
-
-			end
-		end
-		
-		::ignoring::
-		Citizen.Wait(sleep)
-	end
+    teleportPlayer({
+        playerPed = playerPed,
+        randomBackroom = randomBackroom
+    })
 end)
+
 
 Citizen.CreateThread(function()
 	local currentLocation
